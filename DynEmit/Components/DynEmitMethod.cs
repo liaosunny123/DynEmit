@@ -32,9 +32,12 @@ public class DynEmitMethod
     /// <returns></returns>
     public DynString CreateLocalVariable(string var)
         => new DynString(_il, var);
-    
+
     /// <summary>
     /// 执行方法，并将结果（如果有）推送到栈顶
     /// </summary>
     public void ActionMethod()
+    {
+        
+    }
 }
