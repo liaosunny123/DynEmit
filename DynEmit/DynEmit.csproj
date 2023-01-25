@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="Components\SafeTrack\Exception" />
       <Folder Include="Resolvers" />
     </ItemGroup>
 

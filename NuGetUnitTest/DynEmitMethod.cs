@@ -18,8 +18,7 @@ public class Tests
         DynEmitMethod method = new ("Say",null,null);
         DynString dynString = method.CreateLocalVariable("123");
         method.ActionStaticMethod(writeLine, new () { dynString });
-        method.GetDelegate(typeof(Action)).DynamicInvoke();
-        
+        method.Invoke(typeof(Action));
         Assert.Pass();
     }
 }
