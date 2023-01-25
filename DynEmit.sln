@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynEmit", "DynEmit\DynEmit.csproj", "{44106FB0-94D8-4753-BDF2-FA4A2E8E534C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGetUnitTest", "NuGetUnitTest\NuGetUnitTest.csproj", "{6861F12B-0DFE-4F3F-B9A6-290E02103FDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44106FB0-94D8-4753-BDF2-FA4A2E8E534C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44106FB0-94D8-4753-BDF2-FA4A2E8E534C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44106FB0-94D8-4753-BDF2-FA4A2E8E534C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44106FB0-94D8-4753-BDF2-FA4A2E8E534C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6861F12B-0DFE-4F3F-B9A6-290E02103FDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6861F12B-0DFE-4F3F-B9A6-290E02103FDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6861F12B-0DFE-4F3F-B9A6-290E02103FDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6861F12B-0DFE-4F3F-B9A6-290E02103FDE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
