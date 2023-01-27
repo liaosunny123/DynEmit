@@ -4,10 +4,15 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>EpicMo</Authors>
+        <Description>A NuGet for simply generate ASM through EMIT in .NET with optimizing performance.</Description>
+        <PackageProjectUrl>https://github.com/liaosunny123/DynEmit</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/liaosunny123/DynEmit</RepositoryUrl>
+        <PackageTags>IL</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Components\SafeTrack\Exception" />
       <Folder Include="Resolvers" />
     </ItemGroup>
 

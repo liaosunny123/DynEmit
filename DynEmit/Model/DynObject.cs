@@ -1,4 +1,5 @@
-﻿using System.Reflection.Emit;
+﻿using System.Reflection;
+using System.Reflection.Emit;
 using DynEmit.Components;
 
 namespace DynEmit.Model;
@@ -22,5 +23,21 @@ public class DynObject : DynVariable
         _il.Emit(OpCodes.Stloc,_var);
     }
 
+    public DynObject(ILGenerator il, ConstructorInfo constructorInfo)
+    {
+        _il = il;
+        _il.Emit(OpCodes.Newobj, constructorInfo);
+        _var = _il.DeclareLocal(typeof(object));
+        _il.Emit(OpCodes.Stloc,_var);
+    }
+    
+    public DynObject(ILGenerator il, ConstructorInfo constructorInfo,Type type)
+    {
+        _il = il;
+        _il.Emit(OpCodes.Newobj, constructorInfo);
+        _var = _il.DeclareLocal(type);
+        _il.Emit(OpCodes.Stloc,_var);
+    }
+    
     public override void PushValue() => _il.Emit(OpCodes.Ldloc, _var);
 }

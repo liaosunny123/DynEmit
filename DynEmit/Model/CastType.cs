@@ -8,5 +8,6 @@ public enum CastType
     DynType,
     DynPointer,
     DynObject,
-    DynMethodInfo
+    DynMethodInfo,
+    DynVoid
 }

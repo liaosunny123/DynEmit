@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Reflection.Emit;
 using DynEmit.Model;
 
@@ -7,7 +8,7 @@ namespace DynEmit.Components;
 /// <summary>
 /// 动态方法
 /// </summary>
-public class DynEmitMethod
+public class DynEmitMethod<TDel> where TDel : Delegate
 {
     private DynamicMethod _dynEmitMethod;
 
@@ -16,58 +17,54 @@ public class DynEmitMethod
     private ILGenerator _il;
 
     private List<DynVariable> _agrumentList = new List<DynVariable>();
+
+
     /// <summary>
     /// 构建动态方法
     /// </summary>
     /// <param name="name">方法名称</param>
     /// <param name="returnType">返回类型</param>
     /// <param name="types">参数列表</param>
-    public DynEmitMethod(string name, Type? returnType, List<Type>? types)
+    public DynEmitMethod(string name)
     {
+        var start = Stopwatch.GetTimestamp();
+        var returnType = typeof(TDel).GetMethods()[0].ReturnType;
+        var types = typeof(TDel)
+            .GetMethods()[0]
+            .GetParameters()?
+            .Select(sp => sp.ParameterType).ToList();
         _dynEmitMethod = new DynamicMethod(name, returnType, types?.ToArray());
         _il = _dynEmitMethod.GetILGenerator();
-        if (types != null)
-        {
-            int count = 0;
-            types.ForEach(sp =>
-            {
-                _il.Emit(OpCodes.Ldarg,count++);
-                if (sp == typeof(int))
-                {
-                    _agrumentList.Add(new DynInt(_il));
-                }else if (sp == typeof(long))
-                {
-                    _agrumentList.Add(new DynLong(_il));
-                }else if (sp == typeof(MethodInfo))
-                {
-                    _agrumentList.Add(new DynMethodInfo(_il));
-                }else if (sp == typeof(object))
-                {
-                    _agrumentList.Add(new DynObject(_il));
-                }else if (sp == typeof(string))
-                {
-                    _agrumentList.Add(new DynString(_il));
-                }else if (sp == typeof(Type))
-                {
-                    _agrumentList.Add(new DynType(_il));
-                }
-            });
-        }
+        Console.WriteLine(Stopwatch.GetTimestamp() - start);
     }
-    
+
+    /// <summary>
+    /// 构建动态方法
+    /// </summary>
+    /// <param name="name">方法名称</param>
+    /// <param name="returnType">返回类型</param>
+    /// <param name="types">参数列表</param>
+    public DynEmitMethod(string name, Type returnType, List<Type>? types)
+    {
+        var start = Stopwatch.GetTimestamp();
+        _dynEmitMethod = new DynamicMethod(name, returnType, types?.ToArray());
+        _il = _dynEmitMethod.GetILGenerator();
+        Console.WriteLine(Stopwatch.GetTimestamp() - start);
+    }
+
     /// <summary>
     /// 创建本地 String 变量
     /// </summary>
     /// <param name="var">值</param>
     /// <returns></returns>
-    public DynString CreateLocalVariable(string var) => new DynString(_il, var);
+    public DynString CreateLocalVariable(string var) => new(_il, var);
 
     /// <summary>
     /// 创建本地 Int 变量
     /// </summary>
     /// <param name="var"></param>
     /// <returns></returns>
-    public DynInt CreateLocalVariable(int var) => new DynInt(_il, var);
+    public DynInt CreateLocalVariable(int var) => new(_il, var);
 
     /// <summary>
     /// 创建本地 Long 变量
@@ -91,14 +88,17 @@ public class DynEmitMethod
     /// <param name="var"></param>
     /// <returns></returns>
     public DynMethodInfo CreateLocalVariable(MethodInfo var) => new DynMethodInfo(_il, var);
-    
+
     /// <summary>
     /// 创建本地 Type 变量
     /// </summary>
     /// <param name="var"></param>
     /// <returns></returns>
     public DynType CreateLocalVariable(Type var) => new DynType(_il, var);
-    
+
+    public DynArgument LoadArgument(int index)
+        => new DynArgument(_il, index);
+
     /// <summary>
     /// 执行方法，并将结果（如果有）推送到栈顶
     /// </summary>
@@ -114,6 +114,7 @@ public class DynEmitMethod
         if (methodInfo.ReturnType != typeof(void))
             return castType switch
             {
+                CastType.DynVoid => new DynVoid(),
                 CastType.DynObject => new DynObject(_il),
                 CastType.DynString => new DynString(_il),
                 CastType.DynInt => new DynInt(_il),
@@ -126,49 +127,55 @@ public class DynEmitMethod
         return null;
     }
 
-    public Delegate GetDelegate(Type type)
-    {
-        _il.Emit(OpCodes.Ret);
-        return _dynEmitMethod.CreateDelegate(type);
-    }
-
     /// <summary>
-    /// 直接调用返回的方法
+    /// 从堆栈顶直接执行方法
     /// </summary>
-    /// <param name="type"></param>
-    /// <param name="objects"></param>
-    /// <typeparam name="T"></typeparam>
+    /// <param name="methodInfo">调用的方法信息</param>
+    /// <param name="paras">参数</param>
+    /// <param name="hasReturn">是否有返回值</param>
     /// <returns></returns>
-    public T GetInvoke<T>(Type type, params object[] objects)
+    public DynVariable? ActionStaticMethodFromStack(MethodInfo methodInfo, CastType castType = CastType.DynObject)
     {
-        return (T)this.GetDelegate(type).DynamicInvoke(objects)!;
-    }
-
-    /// <summary>
-    /// 直接调用返回的方法
-    /// </summary>
-    /// <param name="type"></param>
-    /// <param name="objects"></param>
-    /// <returns></returns>
-    public object? Invoke(Type type, params object[] objects)
-    {
-        Delegate @delegate = this.GetDelegate(type);
-        if (@delegate.Method.ReturnType != typeof(void))
-            return @delegate.DynamicInvoke(objects);
+        _il.Emit(OpCodes.Call, methodInfo);
+        if (methodInfo.ReturnType != typeof(void))
+            return castType switch
+            {
+                CastType.DynVoid => new DynVoid(),
+                CastType.DynObject => new DynObject(_il),
+                CastType.DynString => new DynString(_il),
+                CastType.DynInt => new DynInt(_il),
+                CastType.DynLong => new DynLong(_il),
+                CastType.DynType => new DynType(_il),
+                CastType.DynPointer => new DynPointer(_il),
+                CastType.DynMethodInfo => new DynMethodInfo(_il),
+                _ => throw new ArgumentOutOfRangeException(nameof(castType), castType, null)
+            };
         return null;
     }
 
+    public Delegate GetDelegate()
+    {
+        _il.Emit(OpCodes.Ret);
+        return _dynEmitMethod.CreateDelegate(typeof(TDel));
+    }
+
+    /// <summary>
+    /// 从方法体上装载参数
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public DynArgument LoadFromMethodArgument(int index) => new DynArgument(_il, index);
+    
     /// <summary>
     /// 直接调用返回的方法
     /// </summary>
     /// <param name="type"></param>
     /// <param name="objects"></param>
     /// <typeparam name="T"></typeparam>
-    /// <typeparam name="TU">创建的委托类型</typeparam>
     /// <returns></returns>
-    public T GetInvoke<T, TU>(Type type, params object[] objects)
+    public T GetInvoke<T>(params object[] objects)
     {
-        return (T)this.GetDelegate(typeof(TU)).DynamicInvoke(objects)!;
+        return (T)this.GetDelegate().DynamicInvoke(objects)!;
     }
 
     /// <summary>
@@ -177,11 +184,12 @@ public class DynEmitMethod
     /// <param name="type"></param>
     /// <param name="objects"></param>
     /// <returns></returns>
-    public object? Invoke<T>(Type type, params object[] objects)
+    public object? Invoke(params object[] objects)
     {
-        Delegate @delegate = this.GetDelegate(typeof(T));
+        Delegate @delegate = this.GetDelegate();
         if (@delegate.Method.ReturnType != typeof(void))
             return @delegate.DynamicInvoke(objects);
+        @delegate.DynamicInvoke(objects);
         return null;
     }
 }
