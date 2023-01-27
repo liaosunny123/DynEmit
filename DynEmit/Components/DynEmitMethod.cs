@@ -104,7 +104,7 @@ public class DynEmitMethod<TDel> where TDel : Delegate
     /// </summary>
     /// <param name="methodInfo">调用的方法信息</param>
     /// <param name="paras">参数</param>
-    /// <param name="hasReturn">是否有返回值</param>
+    /// <param name="castType"></param>
     /// <returns></returns>
     public DynVariable? ActionStaticMethod(MethodInfo methodInfo, List<DynVariable> paras,
         CastType castType = CastType.DynObject)
@@ -128,11 +128,70 @@ public class DynEmitMethod<TDel> where TDel : Delegate
     }
 
     /// <summary>
+    /// 执行非静态方法
+    /// </summary>
+    /// <param name="methodInfo"></param>
+    /// <param name="dynObject"></param>
+    /// <param name="paras"></param>
+    /// <param name="castType"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public DynVariable? ActionNonStaticMethod(MethodInfo methodInfo, DynObject dynObject,List<DynVariable> paras,
+        CastType castType = CastType.DynObject)
+    {
+        dynObject.PushValue();
+        paras.ForEach(sp => sp.PushValue());
+        _il.Emit(OpCodes.Callvirt, methodInfo);
+        if (methodInfo.ReturnType != typeof(void))
+            return castType switch
+            {
+                CastType.DynVoid => new DynVoid(),
+                CastType.DynObject => new DynObject(_il),
+                CastType.DynString => new DynString(_il),
+                CastType.DynInt => new DynInt(_il),
+                CastType.DynLong => new DynLong(_il),
+                CastType.DynType => new DynType(_il),
+                CastType.DynPointer => new DynPointer(_il),
+                CastType.DynMethodInfo => new DynMethodInfo(_il),
+                _ => throw new ArgumentOutOfRangeException(nameof(castType), castType, null)
+            };
+        return null;
+    }
+
+    /// <summary>
+    /// 执行非静态方法
+    /// </summary>
+    /// <param name="methodInfo"></param>
+    /// <param name="dynObject"></param>
+    /// <param name="castType"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public DynVariable? ActionNonStaticMethodFromStack(MethodInfo methodInfo, DynObject dynObject,
+        CastType castType = CastType.DynObject)
+    {
+        dynObject.PushValue();
+        _il.Emit(OpCodes.Callvirt, methodInfo);
+        if (methodInfo.ReturnType != typeof(void))
+            return castType switch
+            {
+                CastType.DynVoid => new DynVoid(),
+                CastType.DynObject => new DynObject(_il),
+                CastType.DynString => new DynString(_il),
+                CastType.DynInt => new DynInt(_il),
+                CastType.DynLong => new DynLong(_il),
+                CastType.DynType => new DynType(_il),
+                CastType.DynPointer => new DynPointer(_il),
+                CastType.DynMethodInfo => new DynMethodInfo(_il),
+                _ => throw new ArgumentOutOfRangeException(nameof(castType), castType, null)
+            };
+        return null;
+    }
+    
+    /// <summary>
     /// 从堆栈顶直接执行方法
     /// </summary>
     /// <param name="methodInfo">调用的方法信息</param>
-    /// <param name="paras">参数</param>
-    /// <param name="hasReturn">是否有返回值</param>
+    /// <param name="castType"></param>
     /// <returns></returns>
     public DynVariable? ActionStaticMethodFromStack(MethodInfo methodInfo, CastType castType = CastType.DynObject)
     {
@@ -165,7 +224,7 @@ public class DynEmitMethod<TDel> where TDel : Delegate
     /// <param name="index"></param>
     /// <returns></returns>
     public DynArgument LoadFromMethodArgument(int index) => new DynArgument(_il, index);
-    
+
     /// <summary>
     /// 直接调用返回的方法
     /// </summary>
