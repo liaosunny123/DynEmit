@@ -18,7 +18,6 @@ public class DynEmitMethod<TDel> where TDel : Delegate
 
     private List<DynVariable> _agrumentList = new List<DynVariable>();
 
-
     /// <summary>
     /// 构建动态方法
     /// </summary>
@@ -27,7 +26,6 @@ public class DynEmitMethod<TDel> where TDel : Delegate
     /// <param name="types">参数列表</param>
     public DynEmitMethod(string name)
     {
-        var start = Stopwatch.GetTimestamp();
         var returnType = typeof(TDel).GetMethods()[0].ReturnType;
         var types = typeof(TDel)
             .GetMethods()[0]
@@ -35,7 +33,6 @@ public class DynEmitMethod<TDel> where TDel : Delegate
             .Select(sp => sp.ParameterType).ToList();
         _dynEmitMethod = new DynamicMethod(name, returnType, types?.ToArray());
         _il = _dynEmitMethod.GetILGenerator();
-        Console.WriteLine(Stopwatch.GetTimestamp() - start);
     }
 
     /// <summary>
@@ -44,12 +41,10 @@ public class DynEmitMethod<TDel> where TDel : Delegate
     /// <param name="name">方法名称</param>
     /// <param name="returnType">返回类型</param>
     /// <param name="types">参数列表</param>
-    public DynEmitMethod(string name, Type returnType, List<Type>? types)
+    public DynEmitMethod(string name, Type? returnType, List<Type>? types)
     {
-        var start = Stopwatch.GetTimestamp();
         _dynEmitMethod = new DynamicMethod(name, returnType, types?.ToArray());
         _il = _dynEmitMethod.GetILGenerator();
-        Console.WriteLine(Stopwatch.GetTimestamp() - start);
     }
 
     /// <summary>
@@ -96,6 +91,11 @@ public class DynEmitMethod<TDel> where TDel : Delegate
     /// <returns></returns>
     public DynType CreateLocalVariable(Type var) => new DynType(_il, var);
 
+    /// <summary>
+    /// 从方法体上装载参数
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
     public DynArgument LoadArgument(int index)
         => new DynArgument(_il, index);
 
@@ -136,7 +136,7 @@ public class DynEmitMethod<TDel> where TDel : Delegate
     /// <param name="castType"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public DynVariable? ActionNonStaticMethod(MethodInfo methodInfo, DynObject dynObject,List<DynVariable> paras,
+    public DynVariable? ActionNonStaticMethod(MethodInfo methodInfo, DynObject dynObject, List<DynVariable> paras,
         CastType castType = CastType.DynObject)
     {
         dynObject.PushValue();
@@ -186,7 +186,7 @@ public class DynEmitMethod<TDel> where TDel : Delegate
             };
         return null;
     }
-    
+
     /// <summary>
     /// 从堆栈顶直接执行方法
     /// </summary>
@@ -217,13 +217,6 @@ public class DynEmitMethod<TDel> where TDel : Delegate
         _il.Emit(OpCodes.Ret);
         return _dynEmitMethod.CreateDelegate(typeof(TDel));
     }
-
-    /// <summary>
-    /// 从方法体上装载参数
-    /// </summary>
-    /// <param name="index"></param>
-    /// <returns></returns>
-    public DynArgument LoadFromMethodArgument(int index) => new DynArgument(_il, index);
 
     /// <summary>
     /// 直接调用返回的方法

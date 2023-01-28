@@ -9,7 +9,17 @@
         <Description>A NuGet for simply generate ASM through EMIT in .NET with optimizing performance.</Description>
         <PackageProjectUrl>https://github.com/liaosunny123/DynEmit</PackageProjectUrl>
         <RepositoryUrl>https://github.com/liaosunny123/DynEmit</RepositoryUrl>
-        <PackageTags>IL</PackageTags>
+        <PackageTags>IL,CIL</PackageTags>
+        <Version>0.0.2-alpha</Version>
+        <Title>DynEmit</Title>
+        <Copyright>https://github.com/liaosunny123/DynEmit/blob/master/LICENSE</Copyright>
+        <PackageLicenseUrl>https://github.com/liaosunny123/DynEmit/blob/master/LICENSE</PackageLicenseUrl>
+        <RepositoryType>Github</RepositoryType>
+        <PackageReleaseNotes>A NuGet for simply generate ASM through EMIT in .NET with optimizing performance.</PackageReleaseNotes>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <AssemblyVersion>0.0.2-alpha</AssemblyVersion>
+        <FileVersion>0.0.2</FileVersion>
+        <NeutralLanguage>en</NeutralLanguage>
     </PropertyGroup>
 
     <ItemGroup>

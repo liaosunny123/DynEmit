@@ -67,4 +67,10 @@ public class DynArgument : DynVariable
         this.PushValue();
         return new DynObject(_il);
     }
+
+    public DynArray<T> CastToTargetArray<T>()
+    {
+        this.PushValue();
+        return new DynArray<T>(_il);
+    }
 }
