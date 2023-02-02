@@ -1,4 +1,6 @@
 # DynEmit
+[![NuGet](https://img.shields.io/nuget/vpre/DynEmit?style=flat&label=NuGet&color=9866ca)](https://www.nuget.org/packages/DynEmit/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/DynEmit?style=flat&label=Downloads&color=42a5f5)](https://www.nuget.org/packages/DynEmit/)  
 A NuGet for simply generate ASM through EMIT in .NET with optimizing performance.  
 使用IL动态生成字节码的NuGet包，可以大幅优化程序部分场景性能和创造更多可能。
 # Language  
